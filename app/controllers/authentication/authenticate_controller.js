@@ -2,6 +2,7 @@
 const EncryptionHelper = require("../../utils/encryption_helper");
 const ResponseHelper = require('../../utils/response_helper');
 const User = require("../../models/User");
+// const { tokenBlacklist } = require('../middleware/authenticated');
 const util = require('util');
 const jwt = require('jsonwebtoken');
 const verifyAsync = util.promisify(jwt.verify);
@@ -19,8 +20,9 @@ class AuthenticateController {
 
         try {
             await User.create({ username, password, email, name }).then(user => {
-                EncryptionHelper.getJwtSignedToken(user, res);
-                ResponseHelper.sendJsonResponse(res, 200, { user: user._id }, "Successfully Created New Entry")
+                // EncryptionHelper.getJwtSignedToken(user, res);
+                const token = EncryptionHelper.getJwtSignedToken(user, res);
+                ResponseHelper.sendJsonResponse(res, 200, { user: user._id, token: token }, "Successfully Created New Entry")
             });
         } catch (err) {
             console.error('Error retrieving data : ', err);
@@ -46,8 +48,8 @@ class AuthenticateController {
             if (!checkPasswordStatus) {
                 ResponseHelper.sendJsonResponse(res, 400, {}, "", { 'error': 'Invalid Password' });
             } else {
-                await EncryptionHelper.getJwtSignedToken(user, res);
-                ResponseHelper.sendJsonResponse(res, 200, { user: user._id }, "Login successful");
+                const token = await EncryptionHelper.getJwtSignedToken(user, res);
+                ResponseHelper.sendJsonResponse(res, 200, { user: user._id, token: token }, "Login successful");
             }
         } catch (error) {
             console.log(error.message);
@@ -57,7 +59,9 @@ class AuthenticateController {
 
     static async logOut(req, res) {
         try {
-            res.cookie("jwt", "", { maxAge: 0 });
+            console.log(req.headers.authorization);
+            // tokenBlacklist.add(token);
+            // res.cookie("jwt", "", { maxAge: 0 });
             ResponseHelper.sendJsonResponse(res, 200, {}, "Successfully Logged Out");
         } catch (error) {
             console.log(error.message);

@@ -41,10 +41,11 @@ async function getJwtSignedToken(user, res) {
         jwtSecret,
         { expiresIn: maxAge }
     );
-    res.cookie("jwt", token, {
-        httpOnly: true,
-        maxAge: maxAge * 1000, // 3hrs in ms
-    });
+    return token;
+    // res.cookie("jwt", token, {
+    //     httpOnly: true,
+    //     maxAge: maxAge * 1000, // 3hrs in ms
+    // });
 }
 
 module.exports = {
