@@ -2,7 +2,7 @@
 const EncryptionHelper = require("../../utils/encryption_helper");
 const ResponseHelper = require('../../utils/response_helper');
 const User = require("../../models/User");
-// const { tokenBlacklist } = require('../middleware/authenticated');
+const { tokenBlacklist, fetchAuthUserToken } = require('../../middleware/authenticated');
 const util = require('util');
 const jwt = require('jsonwebtoken');
 const verifyAsync = util.promisify(jwt.verify);
@@ -59,9 +59,8 @@ class AuthenticateController {
 
     static async logOut(req, res) {
         try {
-            console.log(req.headers.authorization);
-            // tokenBlacklist.add(token);
-            // res.cookie("jwt", "", { maxAge: 0 });
+            const token = await fetchAuthUserToken(req);
+            tokenBlacklist.add(token);
             ResponseHelper.sendJsonResponse(res, 200, {}, "Successfully Logged Out");
         } catch (error) {
             console.log(error.message);

@@ -14,12 +14,20 @@ function isTokenExpired(decodedToken) {
     return decodedToken.exp < currentTimestamp;
 }
 
+async function fetchAuthUserToken(req) {
+    const authorizationHeader = req.headers.authorization;
+    if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
+        // Extract the token from the Authorization header
+        const token = authorizationHeader.split(' ')[1];
+        return token;
+    }
+}
+
 async function authCheck(req, role = null) {
     const authorizationHeader = req.headers.authorization;
     if (authorizationHeader && authorizationHeader.startsWith('Bearer ')) {
         // Extract the token from the Authorization header
         const token = authorizationHeader.split(' ')[1];
-
         if (tokenBlacklist.has(token)) {
             return false;
         }
@@ -90,3 +98,4 @@ exports.userAuth = async (req, res, next) => {
 }
 
 exports.tokenBlacklist = tokenBlacklist;
+exports.fetchAuthUserToken = fetchAuthUserToken;
