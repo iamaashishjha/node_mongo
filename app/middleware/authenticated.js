@@ -1,38 +1,28 @@
 const jwt = require("jsonwebtoken")
-const jwtSecret = "4715aed3c946f7b0a38e6b534a9583628d84e96d10fbc04700770d572af3dce43625dd";
-
-
+const EncryptionHelper = require("../utils/encryption_helper");
+const ResponseHelper = require('../utils/response_helper');
+const jwtSecret = EncryptionHelper.getAuthTokenStr();
 
 exports.auth = (req, res, next) => {
     const token = req.cookies.jwt
     if (token) {
         next();
     } else {
-        return res
-            .status(401)
-            .json({ message: "Not authorized" })
+        return ResponseHelper.sendJsonResponse(res, 401, {}, "", { 'error': 'Not authorized' })
     }
 }
-
 
 exports.adminAuth = (req, res, next) => {
     const token = req.cookies.jwt
     if (token) {
         jwt.verify(token, jwtSecret, (err, decodedToken) => {
-            if (err) {
-                return res.status(401).json({ message: "Not authorized" })
-            } else {
-                if (decodedToken.role !== "admin") {
-                    return res.status(401).json({ message: "Not authorized" })
-                } else {
-                    next();
-                }
+            if (!err && decodedToken.role === "admin") {
+                next();
             }
-        })
+            return ResponseHelper.sendJsonResponse(res, 401, {}, "", { 'error': 'Not authorized' });
+        });
     } else {
-        return res
-            .status(401)
-            .json({ message: "Not authorized, token not available" })
+        return ResponseHelper.sendJsonResponse(res, 401, {}, "", { 'error': 'Not authorized' });
     }
 }
 
@@ -40,19 +30,12 @@ exports.userAuth = (req, res, next) => {
     const token = req.cookies.jwt
     if (token) {
         jwt.verify(token, jwtSecret, (err, decodedToken) => {
-            if (err) {
-                return res.status(401).json({ message: "Not authorized" })
-            } else {
-                if (decodedToken.role !== "Basic") {
-                    return res.status(401).json({ message: "Not authorized" })
-                } else {
-                    next()
-                }
+            if (!err && decodedToken.role === "Basic") {
+                next();
             }
+            return ResponseHelper.sendJsonResponse(res, 401, {}, "", { 'error': 'Not authorized' });
         })
     } else {
-        return res
-            .status(401)
-            .json({ message: "Not authorized, token not available" })
+        return ResponseHelper.sendJsonResponse(res, 401, {}, "", { 'error': 'Not authorized' })
     }
 }

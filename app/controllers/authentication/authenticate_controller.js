@@ -2,6 +2,10 @@
 const EncryptionHelper = require("../../utils/encryption_helper");
 const ResponseHelper = require('../../utils/response_helper');
 const User = require("../../models/User");
+const util = require('util');
+const jwt = require('jsonwebtoken');
+const verifyAsync = util.promisify(jwt.verify);
+
 
 class AuthenticateController {
     static async register(req, res) {
@@ -46,16 +50,34 @@ class AuthenticateController {
                 ResponseHelper.sendJsonResponse(res, 200, { user: user._id }, "Login successful");
             }
         } catch (error) {
-            res.status(400).json({
-                message: "An error occurred",
-                error: error.message,
-            })
+            console.log(error.message);
+            ResponseHelper.sendJsonResponse(res, 400, {}, "", { 'error': 'An error occurred' });
         }
     }
 
     static async logOut(req, res) {
-        res.cookie("jwt", "", { maxAge: 0 });
-        ResponseHelper.sendJsonResponse(res, 200, {}, "Successfully Logged Out");
+        try {
+            res.cookie("jwt", "", { maxAge: 0 });
+            ResponseHelper.sendJsonResponse(res, 200, {}, "Successfully Logged Out");
+        } catch (error) {
+            console.log(error.message);
+            ResponseHelper.sendJsonResponse(res, 400, {}, "", { 'error': 'An error occurred' });
+        }
+
+    }
+
+    static async getAuthUser(req, res) {
+        try {
+            const token = req.cookies.jwt;
+            const jwtSecret = EncryptionHelper.getAuthTokenStr();
+            const decodedToken = await verifyAsync(token, jwtSecret);
+            const username = decodedToken.username;
+            const result = await User.findOne({ username });
+            ResponseHelper.sendJsonResponse(res, 200, result, "Successfully Fetched User");
+        } catch (error) {
+            console.log(error.message);
+            ResponseHelper.sendJsonResponse(res, 400, {}, "", { 'error': 'An error occurred' });
+        }
     }
 }
 

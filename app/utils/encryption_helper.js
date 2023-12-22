@@ -1,13 +1,10 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const jwtSecret = "4715aed3c946f7b0a38e6b534a9583628d84e96d10fbc04700770d572af3dce43625dd";
 
 async function hashPassword(plaintextPassword) {
     try {
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(plaintextPassword, salt);
-
-        // Now 'hash' is the hashed password, you can store it in your database or use it as needed
         return hash;
     } catch (error) {
         console.error('Error hashing password:', error);
@@ -25,17 +22,18 @@ async function compareHashPassword(plaintextPassword, hashedPassword) {
     }
 }
 
-async function generateAuthToken() {
+function getAuthTokenStr() {
     try {
         // const result = require("crypto").randomBytes(35).toString("hex");
         // return result;
         return "4715aed3c946f7b0a38e6b534a9583628d84e96d10fbc04700770d572af3dce43625dd";
     } catch (error) {
         console.error('Error comparing passwords:', error);
-        return false;
+        throw error;
     }
 }
 
+const jwtSecret = getAuthTokenStr(); // Set jwtSecret using the dynamically generated secret
 async function getJwtSignedToken(user, res) {
     const maxAge = 3 * 60 * 60; // 3hrs in sec
     const token = jwt.sign(
@@ -52,6 +50,6 @@ async function getJwtSignedToken(user, res) {
 module.exports = {
     hashPassword,
     compareHashPassword,
-    generateAuthToken,
+    getAuthTokenStr,
     getJwtSignedToken
 };

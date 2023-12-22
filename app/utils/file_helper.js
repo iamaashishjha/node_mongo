@@ -1,7 +1,6 @@
 
 const fs = require('fs');
 const path = require('path');
-// const backendDomain = `${req.protocol}://${req.get('host')}`;
 
 function uploadFile(fileAttribute, folderPath = null, uploadDir = 'uploads') {
     let returnFilePath = null;
@@ -15,7 +14,6 @@ function uploadFile(fileAttribute, folderPath = null, uploadDir = 'uploads') {
                 }
             }
             returnFilePath = uploadedFilePaths;
-            // returnFilePath = uploadedFilePaths.join(', ');
         } else {
             returnFilePath = uploadSingle(fileAttribute, folderPath, uploadDir);
         }
