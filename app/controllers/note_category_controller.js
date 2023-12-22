@@ -1,4 +1,4 @@
-const responseHelper = require('../../utils/response_helper');
+const responseHelper = require('../utils/response_helper');
 const { ObjectId } = require('mongodb');
 
 

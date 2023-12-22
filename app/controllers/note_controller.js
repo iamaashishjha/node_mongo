@@ -1,9 +1,10 @@
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
-const responseHelper = require('../../utils/response_helper');
-const fileHelper = require('../../utils/file_helper');
+const responseHelper = require('../utils/response_helper');
+const fileHelper = require('../utils/file_helper');
 const Note = require('../models/note'); // Import the Note model
-const db = require('../../config/db');
+const db = require('../config/db');
+const noteTransformer = require('../resources/note_resource');
 // const database = await db.connectToMongoDB();
 
 
@@ -38,11 +39,10 @@ class NoteController {
                     }
                 }
             ];
-            const results = await Note.aggregate(aggregateArr);
-            results.forEach(result => {
-                fileHelper.getCompleteFilePath(result.image_paths)
-            });
-            responseHelper.sendJsonResponse(res, 200, results, "Successfully Retrieved New Entries");
+            // const results = await Note.aggregate(aggregateArr);
+            const results = await Note.find();
+            const transformedRes = noteTransformer.noteResourceCollection(results);
+            responseHelper.sendJsonResponse(res, 200, transformedRes, "Successfully Retrieved New Entries");
         } catch (err) {
             console.error('Error retrieving data : ', err);
             responseHelper.sendJsonResponse(res, 500, {}, "", { 'error': 'An error has occurred' });

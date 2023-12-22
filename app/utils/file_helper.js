@@ -1,6 +1,7 @@
 
 const fs = require('fs');
 const path = require('path');
+// const backendDomain = `${req.protocol}://${req.get('host')}`;
 
 function uploadFile(fileAttribute, folderPath = null, uploadDir = 'uploads') {
     let returnFilePath = null;
